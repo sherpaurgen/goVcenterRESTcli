@@ -1,12 +1,21 @@
 # goVcenterRESTcli
 simple go client for using vcenter rest api
 
+Sample user/pass json file
+
+    cat ~/.vmwarepass.json
+    {
+    "host":"host1.virtualdc.local",
+    "username":"staff@virtualdc.com",
+    "secret":"wli#Lol-2Gbv#"
+    }
+
+
 First clone the repo and
 cd into /path/to/repo
 
-go build
-
-./vcenterapi -h
+    go build
+    ./vcenterapi -h
 
 Usage of ./vcenterapi:
 
