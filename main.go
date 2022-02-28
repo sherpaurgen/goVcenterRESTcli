@@ -97,6 +97,7 @@ jsonFile,err:=os.Open(homedir)
 		sessionid:=sessVal.VmwareApiSessionId
 		allvmlist = getVmList(sessionid,cliptr,&cred)
 		for _,val := range allvmlist.Value {
+			//memory unit is in megabyte
 			fmt.Printf("%s,%s,%s,mem:%s,cpu:%s\n",val.Vm,val.Name,val.Powerstat,strconv.Itoa(val.Mem),strconv.Itoa(val.Cpu))
 		}
 	}
