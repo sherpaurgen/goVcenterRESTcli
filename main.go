@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 	"flag"
 )
@@ -32,11 +33,11 @@ type Credential struct {
 	Username string `json:"username"`
 	Secret string `json:"secret"`
 }
+var wg sync.WaitGroup
 
-func powerOnVm(sessid string,cli *http.Client,cred *Credential){
-// Endpoint https://{api_host}/api/vcenter/vm/{vm}/power?action=start
-	vmnameptr := flag.String("startvm", "", "specify vm name")
-    hosturl:="https://"+cred.Host+"/api/vcenter/vm/"+ *vmnameptr +"/power?action=start"
+func powerOnVm(sessid string,vmname string,cli *http.Client,cred *Credential){
+    // Endpoint https://{api_host}/api/vcenter/vm/{vm}/power?action=start
+    hosturl:="https://"+ cred.Host + "/api/vcenter/vm/"+ vmname +"/power?action=start"
 	req,err:=http.NewRequest("POST",hosturl,nil)
 	req.Header.Add("vmware-api-session-id",sessid)
 	resp,err := cli.Do(req)
@@ -45,9 +46,22 @@ func powerOnVm(sessid string,cli *http.Client,cred *Credential){
 	}
 	defer resp.Body.Close()
 	log.Print(resp.Body,resp.StatusCode)
+	if resp.StatusCode == 204 {
+		log.Print("Machine/s started successfully.")
+	} else if resp.StatusCode == 400 {
+		log.Printf("Problem starting %s, already in poweredOn state.",vmname)
+	} else if resp.StatusCode == 404 {
+		log.Printf("Problem starting %s, vm not found.",vmname)
+	} else if resp.StatusCode == 500 {
+		log.Printf("Problem starting %s, Virtualization Host error, please check logs.",vmname)
+	} else if resp.StatusCode == 503 {
+		log.Printf("Problem starting %s, com.vmware.vapi.std.errors.service_unavailable : if the system is unable to communicate with a service to complete the request.",vmname)
+	}
+	defer wg.Done()
 }
 
 func main(){
+
 var err error
 var loginurl string
 var cred Credential
@@ -67,8 +81,8 @@ jsonFile,err:=os.Open(homedir)
 		log.Print(hints)
 		log.Fatal(err)
 	}
-	listvm:=flag.Bool("list",false,"lists available virtual machines")
-
+	listvm:=flag.Bool("list",false,"Lists available virtual machines")
+	startvm:=flag.Bool("start",false,"start vm700 vm701 #starts vms with name vm700 vm701")
 	sessVal := &SessionData{}
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	sEnc := b64.StdEncoding.EncodeToString([]byte(cred.Username+":"+cred.Secret))
@@ -83,6 +97,20 @@ jsonFile,err:=os.Open(homedir)
 		for _,val := range allvmlist.Value {
 			fmt.Printf("%s,%s,%s,mem:%s,cpu:%s\n",val.Vm,val.Name,val.Powerstat,strconv.Itoa(val.Cpu),strconv.Itoa(val.Mem))
 		}
+	}
+	if *startvm {
+		flag.Args()
+		log.Print(flag.Args())
+		if len(flag.Args())<1{
+			log.Fatal("Please enter atleast one vm name")
+		}
+		cliptr,sessVal := initializeConnection(loginurl,&cred,sEnc,sessVal)
+		sessionid:=sessVal.VmwareApiSessionId
+		for v:=0;v<len(flag.Args());v++{
+			wg.Add(1)
+			go powerOnVm(sessionid,flag.Arg(v),cliptr,&cred)
+		}
+		wg.Wait()
 	}
 
 }
