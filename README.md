@@ -1,5 +1,5 @@
 # goVcenterRESTcli
-simple go client for using vcenter rest api
+Simple go client for using vcenter rest api
 
 Sample user/pass json file
 
@@ -12,28 +12,29 @@ Sample user/pass json file
 
 
 First clone the repo and
-cd into /path/to/repo
 
+    cd into /path/to/repo
     go build
+
+Usage :
+
     ./vcenterapi -h
 
-Usage of ./vcenterapi:
-
-  -list
+    -list
   
         Lists available virtual machines
         
-  -start
+    -start
   
         start vm700 vm701 #starts vms with name vm700 vm701
         
         
-List vms & get the vmname eg. 
+List vm's & get the vmid eg. 
 --------------------------------------------------------------------------
 
-O/p order #vmid , vmName          ,PoweredState  , Memory(MB) , Num of cpu
+O/p order - vmid , vmName          ,PoweredState  , Memory(MB) , Num of cpu
 
-    ./vcenterapi -list
+    ./vcenterapi -list | grep "192.45.9.19" 
 
     vm-236,Normal_Windows_192.45.9.191,POWERED_OFF,mem:32768,cpu:16
 
