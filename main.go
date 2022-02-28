@@ -97,7 +97,7 @@ jsonFile,err:=os.Open(homedir)
 		sessionid:=sessVal.VmwareApiSessionId
 		allvmlist = getVmList(sessionid,cliptr,&cred)
 		for _,val := range allvmlist.Value {
-			fmt.Printf("%s,%s,%s,mem:%s,cpu:%s\n",val.Vm,val.Name,val.Powerstat,strconv.Itoa(val.Cpu),strconv.Itoa(val.Mem))
+			fmt.Printf("%s,%s,%s,mem:%s,cpu:%s\n",val.Vm,val.Name,val.Powerstat,strconv.Itoa(val.Mem),strconv.Itoa(val.Cpu))
 		}
 	}
 	if *startvm {
