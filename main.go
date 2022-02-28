@@ -77,15 +77,15 @@ func powerOffVm(sessid string,vmname string,cli *http.Client,cred *Credential){
 	//informational messages reference
 	//https://developer.vmware.com/apis/vsphere-automation/latest/vcenter/api/vcenter/vm/vm/poweractionstart/post/
 	if resp.StatusCode == 204 {
-		log.Print("Machine/s started successfully.")
+		log.Print("Machine/s stopped successfully.")
 	} else if resp.StatusCode == 400 {
-		log.Printf("Problem starting %s, already in poweredOn state.",vmname)
+		log.Printf("Problem stopping %s, already in off state.",vmname)
 	} else if resp.StatusCode == 404 {
-		log.Printf("Problem starting %s, vm not found.",vmname)
+		log.Printf("Problem stopping %s, vm not found.",vmname)
 	} else if resp.StatusCode == 500 {
-		log.Printf("Problem starting %s, Virtualization Host error, please check logs.",vmname)
+		log.Printf("Problem stopping %s, Virtualization Host error, please check logs.",vmname)
 	} else if resp.StatusCode == 503 {
-		log.Printf("Problem starting %s, com.vmware.vapi.std.errors.service_unavailable : if the system is unable to communicate with a service to complete the request.",vmname)
+		log.Printf("Problem stopping %s, com.vmware.vapi.std.errors.service_unavailable : if the system is unable to communicate with a service to complete the request.",vmname)
 	}
 	defer wg.Done()
 }
