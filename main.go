@@ -33,6 +33,82 @@ type Credential struct {
 	Secret string `json:"secret"`
 }
 
+func powerOnVm(sessid string,cli *http.Client,cred *Credential){
+// Endpoint https://{api_host}/api/vcenter/vm/{vm}/power?action=start
+	vmnameptr := flag.String("startvm", "", "specify vm name")
+    hosturl:="https://"+cred.Host+"/api/vcenter/vm/"+ *vmnameptr +"/power?action=start"
+	req,err:=http.NewRequest("POST",hosturl,nil)
+	req.Header.Add("vmware-api-session-id",sessid)
+	resp,err := cli.Do(req)
+	if err != nil {
+		log.Fatal("Error %s", err)
+	}
+	defer resp.Body.Close()
+	log.Print(resp.Body,resp.StatusCode)
+}
+
+func main(){
+var err error
+var loginurl string
+var cred Credential
+var hints string
+hints="Create a user password file in your home dir eg. ~/.vmwarepass.json with contents similar to -> { \"host\":\"vm1.virtualdc.nu\",\"username\":\"john\",\"secret\":\"PqS4AqKjqkS#1\"}"
+homedir,err := os.UserHomeDir()
+homedir = homedir+"/.vmwarepass.json"
+jsonFile,err:=os.Open(homedir)
+	if err != nil{
+		log.Print(hints)
+		log.Fatal(err)
+	}
+	byteValue,_:=ioutil.ReadAll(jsonFile)
+	defer jsonFile.Close()
+	err = json.Unmarshal([]byte(byteValue),&cred) //parse username password json file into struct
+	if err != nil {
+		log.Print(hints)
+		log.Fatal(err)
+	}
+	listvm:=flag.Bool("list",false,"lists available virtual machines")
+
+	sessVal := &SessionData{}
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	sEnc := b64.StdEncoding.EncodeToString([]byte(cred.Username+":"+cred.Secret))
+	loginurl = "https://"+cred.Host+"/rest/com/vmware/cis/session"
+	flag.Parse()
+	if *listvm {
+		var allvmlist ColVmList
+		//catch the sessionid and cliptr to reuse existing http client connection
+		cliptr,sessVal := initializeConnection(loginurl,&cred,sEnc,sessVal)
+		sessionid:=sessVal.VmwareApiSessionId
+		allvmlist = getVmList(sessionid,cliptr,&cred)
+		for _,val := range allvmlist.Value {
+			fmt.Printf("%s,%s,%s,mem:%s,cpu:%s\n",val.Vm,val.Name,val.Powerstat,strconv.Itoa(val.Cpu),strconv.Itoa(val.Mem))
+		}
+	}
+
+}
+
+func initializeConnection(loginurl string,cred *Credential,sEnc string,sessVal *SessionData) (*http.Client,*SessionData) {
+	cli:=http.Client{ Timeout: time.Second*10}
+	req,err:=http.NewRequest("POST",loginurl,nil)
+	req.SetBasicAuth(cred.Username, cred.Secret)
+	req.Header.Add("Accept", `application/json`)
+	req.Header.Add("Authorization","Authorization: Basic "+sEnc)
+	resp,err := cli.Do(req)
+	if err != nil {
+		fmt.Printf("error %s", err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = json.Unmarshal([]byte(string(body)),&sessVal)
+	if  err != nil{
+		log.Fatal(err)
+	}
+	return &cli,sessVal
+}
+
 func getVmList(sessid string,cli *http.Client,cred *Credential) ColVmList {
 	vms := ColVmList{}
 	hosturl:="https://"+cred.Host+"/rest/vcenter/vm"
@@ -49,73 +125,6 @@ func getVmList(sessid string,cli *http.Client,cred *Credential) ColVmList {
 		log.Fatal("Error %s", err)
 	}
 	return vms
-}
-
-func powerOnVm(sessid string,cli *http.Client,cred *Credential){
-// Endpoint https://{api_host}/api/vcenter/vm/{vm}/power?action=start
-	vmnameptr := flag.String("startvm", "", "specify vm name")
-    hosturl:="https://"+cred.Host+"/api/vcenter/vm/"+ *vmnameptr +"/power?action=start"
-	req,err:=http.NewRequest("POST",hosturl,nil)
-	req.Header.Add("vmware-api-session-id",sessid)
-	resp,err := cli.Do(req)
-	if err != nil {
-		log.Fatal("Error %s", err)
-	}
-	defer resp.Body.Close()
-	log.Print(resp.Body,resp.StatusCode)
-}
-
-
-
-func main(){
-var err error
-var loginurl string
-var cred Credential
-homedir,err := os.UserHomeDir()
-homedir = homedir+"/.vmwarepass.json"
-jsonFile,err:=os.Open(homedir)
-if err != nil{
-	log.Print("Create a user password file in your home dir eg. ~/.vmwarepass.json with contents similar to -> { \"host\":\"vm1.virtualdc.nu\",\"username\":\"john\",\"secret\":\"PqS4AqKjqkS#1\"} ")
-	log.Fatal(err)
-}
-byteValue,_:=ioutil.ReadAll(jsonFile)
-defer jsonFile.Close()
-err = json.Unmarshal([]byte(byteValue),&cred)
-if err != nil{
-	log.Print("Create a user password file in your home dir eg. ~/.vmwarepass.json with contents similar to -> { \"host\":\"vm1.virtualdc.nu\",\"username\":\"john\",\"secret\":\"PqS4AqKjqkS#1\"} ")
-	log.Fatal(err)
-	}
-
-sessVal := &SessionData{}
-http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-sEnc := b64.StdEncoding.EncodeToString([]byte(cred.Username+":"+cred.Secret))
-loginurl = "https://"+cred.Host+"/rest/com/vmware/cis/session"
-cli:=http.Client{ Timeout: time.Second*10}
-
-req,err:=http.NewRequest("POST",loginurl,nil)
-req.SetBasicAuth(cred.Username, cred.Secret)
-req.Header.Add("Accept", `application/json`)
-req.Header.Add("Authorization","Authorization: Basic "+sEnc)
-resp,err := cli.Do(req)
-if err != nil {
-		fmt.Printf("error %s", err)
-		return
-	}
-defer resp.Body.Close()
-body, err := ioutil.ReadAll(resp.Body)
-if err != nil {
-	log.Fatal(err)
-}
-err = json.Unmarshal([]byte(string(body)),&sessVal)
-if  err != nil{
-	log.Fatal(err)
-}
-var allvmlist ColVmList
-allvmlist = getVmList(sessVal.VmwareApiSessionId,&cli,&cred)
-for _,val := range allvmlist.Value {
-	fmt.Printf("%s,%s,%s,mem:%s,cpu:%s\n",val.Vm,val.Name,val.Powerstat,strconv.Itoa(val.Cpu),strconv.Itoa(val.Mem))
-}
-
 }
 
 
