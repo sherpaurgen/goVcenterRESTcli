@@ -17,7 +17,6 @@ import (
 type SessionData struct {
 	VmwareApiSessionId string `json:"value"`
 }
-//{"memory_size_MiB":16384,"vm":"vm-10236","name":"Normal_Windows_ISO_2016_sab_20.15.19.100","power_state":"POWERED_OFF","cpu_count":8}
 type Vm struct {
 	Mem int `json:"memory_size_MiB"`
 	Vm string `json:"vm"`
@@ -33,6 +32,7 @@ type Credential struct {
 	Username string `json:"username"`
 	Secret string `json:"secret"`
 }
+//waitgroup to keep track of the goroutines
 var wg sync.WaitGroup
 
 func powerOnVm(sessid string,vmname string,cli *http.Client,cred *Credential){
@@ -46,6 +46,8 @@ func powerOnVm(sessid string,vmname string,cli *http.Client,cred *Credential){
 	}
 	defer resp.Body.Close()
 	log.Print(resp.Body,resp.StatusCode)
+	//informational messages reference
+	//https://developer.vmware.com/apis/vsphere-automation/latest/vcenter/api/vcenter/vm/vm/poweractionstart/post/
 	if resp.StatusCode == 204 {
 		log.Print("Machine/s started successfully.")
 	} else if resp.StatusCode == 400 {
