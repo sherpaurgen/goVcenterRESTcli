@@ -54,4 +54,21 @@ Example usage (when vms are already powered on)
     2022/03/01 00:19:03 Problem starting vm-5646, already started state.
 
 
+--------------------------------------------------------------------------
+Shutting down one or more vm's
+--------------------------------------------------------------------------
+
+    go run main.go -stop vm-51502 vm-5646 vm-69521
+    2022/03/01 01:34:45 [vm-51502 vm-5646 vm-69521]
+    2022/03/01 01:34:47 &{0x1120700 {0xc000100ab0} 0x11d0e00} 204
+    2022/03/01 01:34:47 &{0x1120700 {0xc000100ab0} 0x11d0e00} 204
+    2022/03/01 01:34:47 Machine/s stopped successfully.
+    2022/03/01 01:34:47 Machine/s stopped successfully.
+    2022/03/01 01:34:47 &{0x1120700 {0xc000100ab0} 0x11d0e00} 204
+    2022/03/01 01:34:47 Machine/s stopped successfully.
+if machines are already powered off the o/p is likely to be eg.:
+
+    2022/03/01 01:36:46 &{0x1120700 {0xc0001f6c60} 0x11d0e00} 400
+    2022/03/01 01:36:46 Problem stopping vm-5646, already in off state.
+
 
