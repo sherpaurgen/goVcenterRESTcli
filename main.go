@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -111,6 +112,8 @@ jsonFile,err:=os.Open(homedir)
 		log.Print(hints)
 		log.Fatal(err)
 	}
+	//check wether the virtualization host is reachable on port 443
+	raw_connect(cred.Host, "443")
 	listvm:=flag.Bool("list",false,"Lists available virtual machines")
 	startvm:=flag.Bool("start",false,"start vm700 vm701 #starts vms with vmid vm700 vm701")
 	stopvm:=flag.Bool("stop",false,"stop vm10 vm31 #stops vms with vmid vm10 vm31")
@@ -199,6 +202,18 @@ func getVmList(sessid string,cli *http.Client,cred *Credential) ColVmList {
 		log.Fatal("Error %s", err)
 	}
 	return vms
+}
+
+func raw_connect(host string, port string) {
+		timeout := time.Second*2
+		conn, err := net.DialTimeout("tcp", net.JoinHostPort(host, port), timeout)
+		if err != nil {
+			log.Fatal("API not reachable:", err)
+		}
+		if conn != nil {
+			defer conn.Close()
+			log.Print("Connection successful", net.JoinHostPort(host, port))
+		}
 }
 
 
