@@ -16,28 +16,30 @@ Sample user/pass json file
     }
 
 
-First clone the repo and
+First clone the repo and run build
 
     cd into /path/to/repo
     go build
 
-Usage :
+#Usage :
+    
 
-    ./vcenterapi -h
-
+    ./vcenterapi -h   //display help
+    2022/03/01 14:05:36 Connection successful vsph.virtualdc.com:443
+    Usage of ./vcenterapi:
     -list
-  
-        Lists available virtual machines
-        
+    Lists available virtual machines
     -start
-  
-        start vm700 vm701 #starts vms with name vm700 vm701
+    start vm700 vm701 #starts vms with vmid vm700 vm701
+    -stop
+    stop vm10 vm31 #stops vms with vmid vm10 vm31
+
         
         
 List vm's & get the vmid eg. 
 --------------------------------------------------------------------------
 
-O/p order - vmid , vmName          ,PoweredState  , Memory(MB) , Num of cpu
+Output order - vmid , vmName,PoweredState  , Memory(MB) , Num of cpu
 
     ./vcenterapi -list | grep "192.45.9.19" 
 

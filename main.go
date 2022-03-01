@@ -212,7 +212,7 @@ func raw_connect(host string, port string) {
 		}
 		if conn != nil {
 			defer conn.Close()
-			log.Print("Connection successful", net.JoinHostPort(host, port))
+			log.Print("Connection was successful :", net.JoinHostPort(host, port))
 		}
 }
 
