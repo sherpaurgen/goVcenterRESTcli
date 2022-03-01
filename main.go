@@ -114,9 +114,9 @@ jsonFile,err:=os.Open(homedir)
 	}
 	//check wether the virtualization host is reachable on port 443
 	raw_connect(cred.Host, "443")
-	listvm:=flag.Bool("list",false,"Lists available virtual machines")
-	startvm:=flag.Bool("start",false,"start vm700 vm701 #starts vms with vmid vm700 vm701")
-	stopvm:=flag.Bool("stop",false,"stop vm10 vm31 #stops vms with vmid vm10 vm31")
+	listvm:=flag.Bool("list",false,"./vcenterapi -list #csv o/p of Vms,Output order: vmid,vmName,PoweredState,Memory(MB),NumOfCpu")
+	startvm:=flag.Bool("start",false,"./vcenterapi -start vm3 vm71 vm11 #Starts one or more 'space separated' <vmid> eg. vm3 vm71 vm11")
+	stopvm:=flag.Bool("stop",false,"./vcenterapi -stop vm10 vm31 #Stops one or more 'space separated' <vmid> eg. vm10 vm31")
 	sessVal := &SessionData{}
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	sEnc := b64.StdEncoding.EncodeToString([]byte(cred.Username+":"+cred.Secret))
