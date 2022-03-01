@@ -21,7 +21,7 @@ First clone the repo and run build
     cd into /path/to/repo
     go build
 
-#Usage :
+#Usage -help :
     
 
     ./vcenterapi -h   //display help
@@ -50,22 +50,34 @@ Output order - vmid , vmName,PoweredState  , Memory(MB) , Num of cpu
     vm-182,Normal_Windows_192.45.9.193,POWERED_OFF,POWERED_ON,mem:4096,cpu:8
 
 --------------------------------------------------------------------------
-Example usage (when vms are already powered on)
+Start vm's
 --------------------------------------------------------------------------
-    ./vcenterapi -start vm-5646 vm-69521
-    
-    2022/03/01 00:19:00 [vm-5646 vm-69521]
-    2022/03/01 00:19:03 &{0x1120700 {0xc0000f09a0} 0x11d0e00} 400
-    2022/03/01 00:19:03 Problem starting vm-69521, already started state.
-    2022/03/01 00:19:03 &{0x1120700 {0xc0000f0b00} 0x11d0e00} 400
-    2022/03/01 00:19:03 Problem starting vm-5646, already started state.
+    ./vcenterapi -start vm-24949 vm-51499 vm-51500 vm-51501 vm-51502 vm-51503 vm-5646 vm-69521
+    2022/03/01 20:42:36 Connection was successful :vsph.virtualdc.com:443
+    2022/03/01 20:42:36 [vm-24949 vm-51499 vm-51500 vm-51501 vm-51502 vm-51503 vm-5646 vm-69521]
+    2022/03/01 20:42:39 &{0x1120700 {0xc000114ab0} 0x11d0ee0} 204
+    2022/03/01 20:42:39 Machine/s started successfully.
+    2022/03/01 20:42:39 &{0x1120700 {0xc000114ab0} 0x11d0ee0} 204
+    2022/03/01 20:42:39 Machine/s started successfully.
+    2022/03/01 20:42:39 &{0x1120700 {0xc000240f20} 0x11d0ee0} 400
+    2022/03/01 20:42:39 Problem starting vm-5646, already in poweredOn state.
+    2022/03/01 20:42:40 &{0x1120700 {0xc000114ab0} 0x11d0ee0} 204
+    2022/03/01 20:42:40 Machine/s started successfully.
+    2022/03/01 20:42:40 &{0x1120700 {0xc000114ab0} 0x11d0ee0} 204
+    2022/03/01 20:42:40 Machine/s started successfully.
+    2022/03/01 20:42:40 &{0x1120700 {0xc000114ab0} 0x11d0ee0} 204
+    2022/03/01 20:42:40 Machine/s started successfully.
+    2022/03/01 20:42:40 &{0x1120700 {0xc000114ab0} 0x11d0ee0} 204
+    2022/03/01 20:42:40 Machine/s started successfully.
+    2022/03/01 20:42:40 &{0x1120700 {0xc000114ab0} 0x11d0ee0} 204
+    2022/03/01 20:42:40 Machine/s started successfully.
 
 
 --------------------------------------------------------------------------
 Shutting down one or more vm's
 --------------------------------------------------------------------------
 
-    go run main.go -stop vm-51502 vm-5646 vm-69521
+    ./vcenterapi -stop vm-51502 vm-5646 vm-69521
     2022/03/01 01:34:45 [vm-51502 vm-5646 vm-69521]
     2022/03/01 01:34:47 &{0x1120700 {0xc000100ab0} 0x11d0e00} 204
     2022/03/01 01:34:47 &{0x1120700 {0xc000100ab0} 0x11d0e00} 204
