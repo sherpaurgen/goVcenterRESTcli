@@ -1,5 +1,10 @@
-# goVcenterRESTcli
-Simple go client for using vcenter rest api
+# GoVcenterRESTcli
+    Test enviroment: 
+    go version go1.17.2 darwin/amd64
+    VsphereVcenter Version:	7.0.3 ,Build:	19234570
+    
+
+Simple go client for using vcenter rest api.
 
 Sample user/pass json file
 
@@ -71,4 +76,8 @@ if machines are already powered off the o/p is likely to be eg.:
     2022/03/01 01:36:46 &{0x1120700 {0xc0001f6c60} 0x11d0e00} 400
     2022/03/01 01:36:46 Problem stopping vm-5646, already in off state.
 
+#### **Terms and its meaning**
 
+    * ESXi is a product which provides virtualization.
+    
+    * Vsphere is the name givne to the bundle of all features in the new version (ESXi, vcenter and its features so on).So ESXi is one of the product in vsphere.
